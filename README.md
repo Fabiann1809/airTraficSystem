@@ -116,7 +116,4 @@ Al iniciar el sistema se cargan automáticamente:
 
 ---
 
-## Autores
 
-Proyecto desarrollado para la asignatura de Estructuras de Datos —
-Corporación Universitaria Colombiana.
