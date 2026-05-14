@@ -40,3 +40,19 @@ class IncidentHandler:
     def display_stack(self) -> list[Incident]:
         """Returns a copy of the stack. Index 0 is the bottom; last index is the top."""
         return list(self._incidents)
+
+    # ------------------------------------------------------------------ #
+    # Python protocol methods                                              #
+    # ------------------------------------------------------------------ #
+
+    def __len__(self) -> int:
+        """Supports len(stack) — returns the number of active incidents."""
+        return len(self._incidents)
+
+    def __bool__(self) -> bool:
+        """Supports truthiness check — True if there is at least one incident."""
+        return bool(self._incidents)
+
+    def __iter__(self):
+        """Supports iteration from top (most recent) to bottom of the stack."""
+        return iter(reversed(list(self._incidents)))

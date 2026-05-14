@@ -52,3 +52,15 @@ class EventLog:
     def size(self) -> int:
         """Returns the number of events recorded in the log."""
         return self._size
+
+    # ------------------------------------------------------------------ #
+    # Python protocol methods                                              #
+    # ------------------------------------------------------------------ #
+
+    def __len__(self) -> int:
+        """Supports len(log) — returns the number of recorded events."""
+        return self._size
+
+    def __bool__(self) -> bool:
+        """Supports truthiness check — True if the log contains at least one event."""
+        return self._size > 0

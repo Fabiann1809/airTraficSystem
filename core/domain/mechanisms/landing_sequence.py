@@ -42,3 +42,19 @@ class LandingSequence:
     def display_queue(self) -> list[Aircraft]:
         """Returns a copy of the queue in landing order (front to back)."""
         return list(self._sequence)
+
+    # ------------------------------------------------------------------ #
+    # Python protocol methods                                              #
+    # ------------------------------------------------------------------ #
+
+    def __len__(self) -> int:
+        """Supports len(queue) — returns the number of aircraft waiting."""
+        return len(self._sequence)
+
+    def __bool__(self) -> bool:
+        """Supports truthiness check — True if there is at least one aircraft."""
+        return bool(self._sequence)
+
+    def __iter__(self):
+        """Supports iteration over a snapshot of the queue (front to back)."""
+        return iter(list(self._sequence))

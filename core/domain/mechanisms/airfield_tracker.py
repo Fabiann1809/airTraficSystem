@@ -60,3 +60,15 @@ class AirfieldTracker:
                 "aircraft": str(aircraft) if aircraft is not None else None,
             })
         return result
+
+    def occupied_count(self) -> int:
+        """Returns the number of runways currently occupied by an aircraft."""
+        return sum(1 for r in self._runways if r is not None)
+
+    def free_count(self) -> int:
+        """Returns the number of runways currently available for landing."""
+        return self._capacity - self.occupied_count()
+
+    def __len__(self) -> int:
+        """Supports len(tracker) — returns the total runway capacity."""
+        return self._capacity
