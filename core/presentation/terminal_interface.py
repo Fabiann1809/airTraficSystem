@@ -2,6 +2,7 @@ import os
 import sys
 
 from core.application.atc_orchestrator import ATCOrchestrator
+from core.domain.entities.aircraft import Aircraft
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -108,10 +109,17 @@ class TerminalInterface:
 
     def _navigate_flight_path(self) -> None:
         print(f"\n{CYAN}─── Navegar plan de vuelo ───{RESET}")
-        current = self._orchestrator.get_current_waypoint()
-        print(f"  Waypoint actual: {CYAN}{current or 'Ninguno'}{RESET}")
-        print(f"  {CYAN}[1]{RESET} Siguiente  {CYAN}[2]{RESET} Anterior  "
-              f"{CYAN}[3]{RESET} Agregar waypoint  {CYAN}[0]{RESET} Volver")
+        status = self._orchestrator.get_system_status()
+        waypoints = status["waypoints"]
+        current = status["current_waypoint"]
+        if waypoints:
+            for wp in waypoints:
+                marker = f"{CYAN}► {RESET}" if wp == current else "  "
+                print(f"  {marker}{wp}")
+        else:
+            print(f"  {YELLOW}Sin waypoints registrados{RESET}")
+        print(f"\n  {CYAN}[1]{RESET} Siguiente  {CYAN}[2]{RESET} Anterior  "
+              f"{CYAN}[3]{RESET} Agregar  {CYAN}[4]{RESET} Reiniciar  {CYAN}[0]{RESET} Volver")
         choice = input("  Opción: ").strip()
         try:
             if choice == "1":
@@ -125,6 +133,9 @@ class TerminalInterface:
                 if coords:
                     self._orchestrator.add_waypoint(coords)
                     print(f"{GREEN}  ✓ Waypoint '{coords}' agregado{RESET}")
+            elif choice == "4":
+                first = self._orchestrator.reset_waypoint_navigation()
+                print(f"{GREEN}  ⟲ Navegación reiniciada → {first}{RESET}")
             elif choice != "0":
                 print(f"{YELLOW}  Opción inválida.{RESET}")
         except ValueError as e:
@@ -159,11 +170,22 @@ class TerminalInterface:
                 detail = f"  {r['aircraft']}"
             print(f"    Pista {r['index'] + 1}: {icon}{detail}")
 
+        free_count = self._orchestrator.get_free_runway_count()
+        inc_count = self._orchestrator.get_incident_count()
+        print(f"\n  {CYAN}Resumen:{RESET} Pistas libres {GREEN}{free_count}/4{RESET}  "
+              f"Emergencias {RED if inc_count else GREEN}{inc_count}{RESET}")
+
         print(f"\n{CYAN}  Cola de espera ({status['queue_size']} aviones):{RESET}")
         if status["queue"]:
             for i, ac in enumerate(status["queue"], 1):
-                color = YELLOW if "emergency" in ac else ""
-                print(f"    {i}. {color}{ac}{RESET}")
+                fuel_tag = ""
+                if "CRÍTICO" in ac or "emergency" in ac:
+                    color, fuel_tag = YELLOW, f" {RED}[CRÍTICO]{RESET}"
+                elif "BAJO" in ac:
+                    color, fuel_tag = YELLOW, f" {YELLOW}[BAJO]{RESET}"
+                else:
+                    color = ""
+                print(f"    {i}. {color}{ac}{RESET}{fuel_tag}")
         else:
             print(f"    {YELLOW}Cola vacía{RESET}")
 
