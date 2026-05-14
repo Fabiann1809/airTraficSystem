@@ -4,7 +4,7 @@ from tkinter import messagebox
 from core.application.atc_orchestrator import ATCOrchestrator
 from core.presentation.gui.theme import (
     BG_DARK, BG_PANEL, BG_CARD,
-    COLOR_GREEN, COLOR_WHITE, COLOR_YELLOW, COLOR_CYAN,
+    COLOR_GREEN, COLOR_WHITE, COLOR_YELLOW, COLOR_CYAN, COLOR_GRAY,
     FONT_TITLE, FONT_BODY, FONT_SMALL,
 )
 
@@ -25,6 +25,16 @@ class QueuePanel(tk.LabelFrame):
             bd=1,
         )
         self._orchestrator = orchestrator
+
+        self._count_label = tk.Label(
+            self,
+            text="0 aviones en cola",
+            bg=BG_PANEL,
+            fg=COLOR_YELLOW,
+            font=FONT_SMALL,
+            anchor="w",
+        )
+        self._count_label.pack(fill="x", pady=(0, 4))
 
         lb_frame = tk.Frame(self, bg=BG_CARD, relief="flat")
         lb_frame.pack(fill="both", expand=True, pady=(0, 6))
@@ -136,9 +146,15 @@ class QueuePanel(tk.LabelFrame):
         self.master.master.refresh_all()
 
     def refresh(self) -> None:
-        """Rebuilds the listbox with the current queue contents."""
+        """Rebuilds the listbox and updates the counter label."""
+        status = self._orchestrator.get_system_status()
+        count = status["queue_size"]
+        self._count_label.config(
+            text=f"{count} avión(es) en cola",
+            fg=COLOR_YELLOW if count > 0 else COLOR_GRAY,
+        )
         self._listbox.delete(0, tk.END)
-        for aircraft_str in self._orchestrator.get_system_status()["queue"]:
+        for aircraft_str in status["queue"]:
             self._listbox.insert(tk.END, f"  {aircraft_str}")
             idx = self._listbox.size() - 1
             color = COLOR_YELLOW if "emergency" in aircraft_str else COLOR_WHITE

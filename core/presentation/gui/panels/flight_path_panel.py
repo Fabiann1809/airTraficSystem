@@ -4,7 +4,7 @@ from tkinter import messagebox, simpledialog
 from core.application.atc_orchestrator import ATCOrchestrator
 from core.presentation.gui.theme import (
     BG_DARK, BG_PANEL, BG_CARD,
-    COLOR_CYAN, COLOR_WHITE, COLOR_YELLOW,
+    COLOR_CYAN, COLOR_WHITE, COLOR_YELLOW, COLOR_GRAY,
     FONT_TITLE, FONT_BODY,
 )
 
@@ -71,8 +71,11 @@ class FlightPathPanel(tk.LabelFrame):
                 command=cmd,
             ).pack(side="left", fill="x", expand=True, padx=2)
 
+        action_frame = tk.Frame(btn_frame, bg=BG_PANEL)
+        action_frame.pack(fill="x", pady=(2, 0))
+
         tk.Button(
-            btn_frame,
+            action_frame,
             text="Agregar waypoint",
             bg=BG_CARD,
             fg=COLOR_YELLOW,
@@ -82,7 +85,20 @@ class FlightPathPanel(tk.LabelFrame):
             activebackground="#4A6080",
             activeforeground=COLOR_WHITE,
             command=self._add_waypoint,
-        ).pack(fill="x", padx=2)
+        ).pack(side="left", fill="x", expand=True, padx=(2, 1))
+
+        tk.Button(
+            action_frame,
+            text="⟲ Reiniciar",
+            bg=BG_CARD,
+            fg=COLOR_GRAY,
+            font=FONT_BODY,
+            relief="flat",
+            cursor="hand2",
+            activebackground="#4A6080",
+            activeforeground=COLOR_WHITE,
+            command=self._reset_navigation,
+        ).pack(side="left", fill="x", expand=True, padx=(1, 2))
 
     def _navigate_forward(self) -> None:
         try:
@@ -96,6 +112,10 @@ class FlightPathPanel(tk.LabelFrame):
             self._orchestrator.navigate_waypoint_backward()
         except ValueError as e:
             messagebox.showwarning("Aviso", str(e), parent=self)
+        self.master.master.refresh_all()
+
+    def _reset_navigation(self) -> None:
+        self._orchestrator.reset_waypoint_navigation()
         self.master.master.refresh_all()
 
     def _add_waypoint(self) -> None:

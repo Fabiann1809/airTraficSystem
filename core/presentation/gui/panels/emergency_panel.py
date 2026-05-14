@@ -4,8 +4,8 @@ from tkinter import messagebox
 from core.application.atc_orchestrator import ATCOrchestrator
 from core.presentation.gui.theme import (
     BG_DARK, BG_PANEL, BG_CARD,
-    COLOR_RED, COLOR_WHITE, COLOR_YELLOW, COLOR_CYAN,
-    FONT_TITLE, FONT_BODY,
+    COLOR_RED, COLOR_WHITE, COLOR_YELLOW, COLOR_CYAN, COLOR_GRAY,
+    FONT_TITLE, FONT_BODY, FONT_SMALL,
 )
 
 
@@ -25,6 +25,16 @@ class EmergencyPanel(tk.LabelFrame):
             bd=1,
         )
         self._orchestrator = orchestrator
+
+        self._count_label = tk.Label(
+            self,
+            text="0 emergencias activas",
+            bg=BG_PANEL,
+            fg=COLOR_GRAY,
+            font=FONT_SMALL,
+            anchor="w",
+        )
+        self._count_label.pack(fill="x", pady=(0, 4))
 
         lb_frame = tk.Frame(self, bg=BG_CARD, relief="flat")
         lb_frame.pack(fill="both", expand=True, pady=(0, 6))
@@ -142,9 +152,15 @@ class EmergencyPanel(tk.LabelFrame):
         self.master.master.refresh_all()
 
     def refresh(self) -> None:
-        """Rebuilds the listbox with the incident stack (index 0 = top)."""
+        """Rebuilds the listbox and updates the incident counter label."""
+        status = self._orchestrator.get_system_status()
+        count = status["incidents_count"]
+        self._count_label.config(
+            text=f"{count} emergencia(s) activa(s)",
+            fg=COLOR_RED if count > 0 else COLOR_GRAY,
+        )
         self._listbox.delete(0, tk.END)
-        for inc_str in self._orchestrator.get_system_status()["incidents"]:
+        for inc_str in status["incidents"]:
             self._listbox.insert(tk.END, f"  {inc_str}")
             idx = self._listbox.size() - 1
             if "Severidad 3" in inc_str:
