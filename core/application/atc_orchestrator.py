@@ -174,6 +174,28 @@ class ATCOrchestrator:
     # System status                                                        #
     # ------------------------------------------------------------------ #
 
+    def reset_waypoint_navigation(self) -> Optional[str]:
+        """Resets the flight path navigation pointer to the first waypoint."""
+        self._flight_path.reset_navigation()
+        current = self._flight_path.get_current()
+        if current:
+            self._event_log.log_event(
+                f"Navegación reiniciada al waypoint inicial: {current}"
+            )
+        return current
+
+    def get_incident_count(self) -> int:
+        """Returns the number of unresolved incidents currently on the stack."""
+        return self._incident_handler.size()
+
+    def get_free_runway_count(self) -> int:
+        """Returns the number of runways available for landing right now."""
+        return self._airfield.free_count()
+
+    # ------------------------------------------------------------------ #
+    # System status                                                        #
+    # ------------------------------------------------------------------ #
+
     def get_system_status(self) -> dict:
         """Returns a complete snapshot of the current system state."""
         stack_copy = self._incident_handler.display_stack()
