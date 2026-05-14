@@ -27,3 +27,17 @@ class Aircraft:
 
     def __repr__(self) -> str:
         return self.__str__()
+
+    def is_emergency(self) -> bool:
+        """Returns True if this aircraft has emergency landing priority."""
+        return self.priority == "emergency"
+
+    def fuel_status(self) -> str:
+        """Returns a human-readable fuel level label in Spanish."""
+        if self.fuel_level < 20:
+            return "CRÍTICO"
+        if self.fuel_level < 40:
+            return "BAJO"
+        if self.fuel_level < 70:
+            return "NORMAL"
+        return "ÓPTIMO"
